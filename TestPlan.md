@@ -32,7 +32,7 @@ Validate the core functional behaviors of the website, including navigation, pro
 #### B. Product Catalog and Details
 | ID | Test Description | Type | Test Steps | Expected Result |
 |---|---|---|---|---|
-| TC-03 | Featured products are displayed on the homepage and shop page | Positive | 1. Open the homepage. 2. Open the Shop page. 3. Locate the product cards. | Product cards are visible with name, price, and call-to-action buttons. |
+| TC-03 | Featured products are displayed on the homepage. | Positive | 1. Open the homepage. 2. Scroll page to the bottom. 3. Click button View All Products | Load more products successfully on the homepage. |
 | TC-04 | User can open a product detail page | Positive | 1. Select a product from the catalog. 2. Open its detail page. | The product detail page loads with product information and available actions. |
 | TC-05 | User can add a product to the cart | Positive | 1. Open a product listing or detail page. 2. Click Add to Cart. | The selected product is added to the cart and the cart count updates. |
 | TC-06 | Cart page displays selected items correctly | Positive | 1. Add one or more products to the cart. 2. Open the cart page. | The cart page shows the correct items, prices, and quantities. |

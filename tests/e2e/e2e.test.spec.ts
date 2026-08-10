@@ -21,3 +21,29 @@ test('TC-02: Main navigation links work correctly', async({page})=>{
     await navContact.click();
     await expect(headingContactUs).toBeVisible();
 });
+
+test('TC-03: Featured products are displayed on the homepage.', async({page})=>{
+    const btnViewAllProducts = page.locator('[data-test-id="home-view-all-products-button"]');
+    await page.goto('/');
+    await page.locator('nav').getByRole('link', {name: 'Home'}).click();
+    await expect(page).toHaveURL('https://valentinos-magic-beans.click/');
+    await expect(page.getByRole('heading', {name: 'Featured Coffees', exact: true})).toBeVisible();
+    await btnViewAllProducts.click();
+    await expect(btnViewAllProducts).not.toBeVisible();
+});
+
+test('TC-04: User can open a product detail page', async({page})=>{
+    await page.goto('/');
+    await page.locator('nav').getByRole('link', {name: 'Shop'}).click();
+    await expect(page).toHaveURL(/products/);
+
+    const firstProduct = page.locator('[data-test-id^="product-card-"]').first();
+    const firstProductName = await firstProduct.getByRole('heading').textContent();
+    const firstProductPrice = await firstProduct.locator('span.text-2xl').textContent();
+    await firstProduct.getByRole('button', {name: 'View Details'}).click();
+    await expect(page.getByRole('heading', {name: 'Product Details'})).toBeVisible();
+    await expect(page.getByRole('heading', {name: firstProductName ?? ''})).toBeVisible();
+    await expect(page.locator('p.text-3xl').filter({hasText: firstProductPrice ?? ''})).toBeVisible();
+    await page.waitForTimeout(10000);
+})
+
