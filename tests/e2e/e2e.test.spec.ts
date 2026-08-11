@@ -45,5 +45,27 @@ test('TC-04: User can open a product detail page', async({page})=>{
     await expect(page.getByRole('heading', {name: firstProductName ?? ''})).toBeVisible();
     await expect(page.locator('p.text-3xl').filter({hasText: firstProductPrice ?? ''})).toBeVisible();
     await page.waitForTimeout(10000);
-})
+});
+
+test('TC-05: User can add a product to the cart', async({page})=>{
+    await page.goto('/');
+    await page.locator('nav').getByRole('link', {name: 'Shop'}).click();
+    await expect(page).toHaveURL(/products/);
+
+    const productName = 'Ethiopian Highlands';
+    const productDiv = await page.locator('div[data-test-id^="product-card-"]').filter({has: page.getByRole('heading', {name: productName})});
+    const productPrice = await productDiv.locator('span').textContent();
+    const btnAddToCart = productDiv.getByRole('button', {name: 'Add to Cart'});
+    await btnAddToCart.click();
+    await page.waitForTimeout(3000);
+
+    //Assertion
+    //clicking the Cart icon at the top corner of the page
+    await page.locator('a[data-test-id="header-cart-button"]>button').click();
+    await expect(page).toHaveURL(/cart/);
+
+    const cartItemDiv = page.locator('[data-test-id="cart-item"]').first();
+    await expect(cartItemDiv.getByRole('heading', {name: productName})).toBeVisible();
+    await expect(cartItemDiv.locator(".text-right>p")).toContainText(productPrice ?? '');
+});
 
