@@ -41,8 +41,8 @@ Validate the core functional behaviors of the website, including navigation, pro
 | ID | Test Description | Type | Test Steps | Expected Result |
 |---|---|---|---|---|
 | TC-07 | User can proceed to checkout from the cart | Positive | 1. Add a product to the cart. 2. Open the cart page. 3. Click Proceed to Checkout. | The checkout page opens and displays the checkout form. |
-| TC-08 | Checkout form accepts valid customer information | Positive | 1. Open the checkout page. 2. Fill in the required shipping and payment fields with valid values. 3. Click Place Order. | The order is submitted successfully and a confirmation or success state is shown. |
-| TC-09 | Checkout is blocked with missing required fields | Negative | 1. Open the checkout page. 2. Leave one or more required fields empty. 3. Click Place Order. | Validation errors appear and the order is not submitted. |
+| TC-08 | Checkout is blocked with missing required fields | Negative | 1. Open the checkout page. 2. Leave one or more required fields empty. 3. Click Place Order. | Validation errors appear and the order is not submitted. |
+| TC-09 | Checkout form accepts valid customer information | Positive | 1. Open the checkout page. 2. Fill in the required shipping and payment fields with valid values. 3. Click Place Order. | The order is submitted successfully and a confirmation or success state is shown. |
 
 #### D. Order Tracking and Contact
 | ID | Test Description | Type | Test Steps | Expected Result |
