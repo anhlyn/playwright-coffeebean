@@ -153,7 +153,13 @@ test.describe('B. Product Catalog and Details',()=>{
 let checkoutProduct =  {
     name: 'Italian Dark Roast',
     price: '',
-    orderID: ''
+    orderID: '',
+    email: ''
+};
+
+const invalidOrderTracking = {
+    orderID: '0860F080F',
+    email: 'Adah_Hartmann95@gmail.com'
 };
 
 test.describe('C. Cart and Checkout', ()=>{
@@ -239,7 +245,6 @@ test.describe('C. Cart and Checkout', ()=>{
                 cardCVV: faker.finance.creditCardCVV()
             }
         };
-        console.log(checkoutForm);
         await page.locator('[data-test-id="checkout-firstname-input"]').fill(checkoutForm.contact.firstName);
         await page.locator('[data-test-id="checkout-lastname-input"]').fill(checkoutForm.contact.lastName);
         await page.locator('[data-test-id="checkout-email-input"]').fill(checkoutForm.contact.email);
@@ -254,10 +259,108 @@ test.describe('C. Cart and Checkout', ()=>{
         await page.locator('[data-test-id="checkout-cardcvc-input"]').fill(checkoutForm.payment.cardCVV);
         await page.waitForTimeout(3000);
         await page.getByRole('button', {name: 'place order'}).click();
-        await page.pause();
 
         await expect(page).toHaveURL(/order-confirmation/);
         checkoutProduct.orderID = await page.locator('div').filter({hasText: 'Your Order ID is:'}).locator('p.tracking-wider').textContent()??'';
         await expect(checkoutProduct.orderID?.length).toEqual(8);
+    });
+});
+
+test.describe('D. Order Tracking and Contact', ()=>{
+    test('TC-10: Order tracking works with a valid Order ID', async({page})=>{
+    //PRE-CONDITION: make 1 order
+     await page.goto('/');
+        await page.locator('nav').getByRole('link', {name: 'shop'}).click();
+        await expect(page).toHaveURL(/products/);
+
+        const LocatorProductBox = await page.locator('[data-test-id^="product-card-"]').filter({has:page.getByRole('heading', {name: checkoutProduct.name})});
+        checkoutProduct.price = await LocatorProductBox.locator('span').textContent() ?? '';
+        await LocatorProductBox.getByRole('button', {name: 'Add to Cart'}).click();
+
+        await page.locator('[data-test-id="header-cart-button"]').click();
+        await expect(page).toHaveURL(/cart/);
+        const cartItem = page.locator('[data-test-id="cart-item"]').filter({has: page.getByRole('heading', {name: checkoutProduct.name})});
+        await expect(cartItem).toBeVisible();
+        expect(await cartItem.locator('.text-right>p').textContent()).toBe(checkoutProduct.price);
+
+        await page.getByRole('button', {name: 'proceed to checkout'}).click();
+        await expect(page).toHaveURL(/checkout/);
+
+        //filling data in the form
+        let fn = faker.person.firstName();
+        let ln = faker.person.lastName();
+        let fullName = fn.concat(' ' + ln).toUpperCase();
+        const checkoutForm = {
+            "contact":{
+                firstName: fn,
+                lastName: ln,
+                email: faker.internet.email()
+            },
+            "shipping":{
+                address: faker.location.streetAddress(),
+                city: faker.location.city(),
+                zipCode: faker.location.zipCode()
+            },
+            "payment":{
+                nameOnCard: fullName,
+                cardNum: '1234 5678 1234 1234',
+                cardExpiry: '10/28',
+                cardCVV: faker.finance.creditCardCVV()
+            }
+        };
+        await page.locator('[data-test-id="checkout-firstname-input"]').fill(checkoutForm.contact.firstName);
+        await page.locator('[data-test-id="checkout-lastname-input"]').fill(checkoutForm.contact.lastName);
+        await page.locator('[data-test-id="checkout-email-input"]').fill(checkoutForm.contact.email);
+        
+        await page.locator('[data-test-id="checkout-address-input"]').fill(checkoutForm.shipping.address);
+        await page.locator('[data-test-id="checkout-city-input"]').fill(checkoutForm.shipping.city);
+        await page.locator('[data-test-id="checkout-zipcode-input"]').fill(checkoutForm.shipping.zipCode);
+
+        await page.locator('[data-test-id="checkout-cardname-input"]').fill(checkoutForm.payment.nameOnCard);
+        await page.locator('[data-test-id="checkout-cardnumber-input"]').fill(checkoutForm.payment.cardNum);
+        await page.locator('[data-test-id="checkout-cardexpiry-input"]').fill(checkoutForm.payment.cardExpiry);
+        await page.locator('[data-test-id="checkout-cardcvc-input"]').fill(checkoutForm.payment.cardCVV);
+        await page.waitForTimeout(3000);
+        await page.getByRole('button', {name: 'place order'}).click();
+
+        await expect(page).toHaveURL(/order-confirmation/);
+        checkoutProduct.orderID = await page.locator('div').filter({hasText: 'Your Order ID is:'}).locator('p.tracking-wider').textContent()??'';
+        checkoutProduct.email = checkoutForm.contact.email;
+        await expect(checkoutProduct.orderID?.length).toEqual(8);
+
+        //TEST STEPS: TRACK ORDER ID AND EMAIL
+        await page.getByRole('link', {name: 'Contact'}).click();
+        await expect(page.getByText('Track Your Order', {exact: true})).toBeVisible();
+
+        await page.locator('[data-test-id="contact-order-id-input"]').fill(checkoutProduct.orderID);
+        await page.locator('[data-test-id="contact-email-input"]').fill(checkoutProduct.email);
+        await page.getByRole('button', {name: 'track order'}).click();
+
+        await expect(page).toHaveURL(/order/);
+        await expect(page.getByText('order details')).toBeVisible();
+    });
+
+    test('TC-11: Order tracking shows error message when Order ID and Email are left blank', async({page})=>{
+        await page.goto('/');
+        await page.getByRole('link', {name: 'Contact'}).click();
+        await expect(page).toHaveURL(/contact/);
+
+        //Leave order id, email blank and click button Track Order
+        await page.getByRole('button', {name: 'track order'}).click();
+        await expect(page.getByText('Order ID is required')).toBeVisible();
+        await expect(page.getByText('Please enter a valid email address')).toBeVisible();
+    });
+
+    test('TC-12: Order tracking shows error message when fill invalid order tracking', async({page})=>{
+        await page.goto('/');
+        await page.getByRole('link', {name: 'Contact'}).click();
+        await expect(page).toHaveURL(/contact/);
+
+        //Leave order id, email blank and click button Track Order
+        await page.locator('[data-test-id="contact-order-id-input"]').fill(invalidOrderTracking.orderID);
+        await page.locator('[data-test-id="contact-email-input"]').fill(invalidOrderTracking.email);
+        await page.getByRole('button', {name: 'track order'}).click();
+        await expect(page.getByText('Order Not Found')).toBeVisible();
+        await expect(page.getByText('Dismiss')).toBeVisible();
     });
 });
