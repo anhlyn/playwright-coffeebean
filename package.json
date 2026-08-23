@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:api": "npx playwright test tests/api.test.spec.ts",
+    "test:e2e": "npx playwright test tests/e2e.test.spec.ts",
+    "report:html": "npx playwright show-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
