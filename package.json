@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:api": "npx playwright test tests/api.test.spec.ts",
-    "test:e2e": "npx playwright test tests/e2e.test.spec.ts",
+    "test:api": "npx playwright test tests/api.test.spec.ts --project=\"API Testing\"",
+    "test:e2e": "npx playwright test tests/e2e.test.spec.ts --project=\"E2E Testing\"",
     "report:html": "npx playwright show-report"
   },
   "keywords": [],
