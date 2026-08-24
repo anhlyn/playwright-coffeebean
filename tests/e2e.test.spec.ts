@@ -1,56 +1,54 @@
 import {test, expect} from '@playwright/test';
 import { faker } from '@faker-js/faker';
+import { HomePage } from './pages/homepage';
 
 test.describe('A. Navigation and Homepage', ()=>{
     test('TC-01: Home page loads successfully', async({page})=>{
+        const homepage = new HomePage(page);
         await test.step('Go to homepage', async()=>{
-            await page.goto('/');
+            await homepage.gotoHomePage();
         });
         await test.step('Verify test result', async()=>{
-            await expect(page.locator('header').getByRole('heading', {name: "Valentino's Magic Beans"})).toBeVisible();
+            await homepage.verifyOnHomePage();
         });
     });
 
     test('TC-02: Main navigation links work correctly', async({page})=>{
-        const navHome = page.locator('nav').getByRole('link', {name: 'Home'});
-        const navShop = page.locator('nav').getByRole('link', {name: 'Shop'});
-        const navContact = page.locator('nav>a[href="/contact"]');
-        const headingContactUs = page.getByRole('heading', {name: 'Contact Us & Track Your Order'});
+        const homepage = new HomePage(page);
         await test.step('Step: Go to homepage', async()=>{
-            await page.goto('/');
+            await homepage.gotoHomePage();
         });
 
         await test.step('Step: Verify clicking Home link', async()=>{
-            await navHome.click();
-            await expect(page).toHaveURL('https://valentinos-magic-beans.click/');
+            await homepage.clickNavHome();
+            await homepage.verifyOnHomePage();
         });
 
         await test.step('Step: Verify clicking shop link', async()=>{
-            await navShop.click();
-            await expect(page).toHaveURL(/products/);
+            await homepage.clickNavShop();
+            await homepage.verifyOnProductPage();
         });
 
         await test.step('Step: Verify clicking contact link', async()=>{
-            await navContact.click();
-            await expect(headingContactUs).toBeVisible();
+            await homepage.clickNavContact();
+            await homepage.verifyOnContactPage();
         });
     });
 });
 
 test.describe('B. Product Catalog and Details',()=>{
     test('TC-03: Featured products are displayed on the homepage.', async({page})=>{
-        const btnViewAllProducts = page.locator('[data-test-id="home-view-all-products-button"]');
+        const homepage = new HomePage(page);
         await test.step('Step1: go to homepage', async()=>{
-            await page.goto('/');
-            //await page.locator('nav').getByRole('link', {name: 'Home'}).click();
-            await expect(page).toHaveURL('https://valentinos-magic-beans.click/');
+            await homepage.gotoHomePage();
+            await homepage.verifyOnHomePage();
         });
         await test.step('Step2: Verify "Featured Coffees" heading is visible.', async()=>{
-            await expect(page.getByRole('heading', {name: 'Featured Coffees', exact: true})).toBeVisible();
+            await homepage.verifyFeaturesIsVisible();
         });
         await test.step('Step3: click button "View All Products" and verify test result', async()=>{
-            await btnViewAllProducts.click();
-            await expect(btnViewAllProducts).not.toBeVisible();
+            await homepage.clickViewAllProducts();
+            await homepage.verifyBtnViewAllProductIsInvisible();
         });
     });
 
