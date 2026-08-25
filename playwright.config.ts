@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   timeout: 30000,
+  fullyParallel: true,
   projects:[
     {
       name: 'E2E Testing',
