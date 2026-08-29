@@ -24,7 +24,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: e2e playwright-report
-        path: ./playwright-report/
+        path: /playwright-report/
 
   run-api-test:
     name: Run api testing
@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api playwright-report
-          path: ./playwright-report/
+          path: /playwright-report/
