@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   timeout: 30000,
   fullyParallel: true,
+  reporter: [
+    ['html', { outputFolder: 'playwright-report', open: 'never' }]
+  ],
   projects:[
     {
       name: 'E2E Testing',
