@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import { HomePage } from './pages/homepage';
 import { ProductPage } from './pages/productpage';
 import { CartPage } from './pages/cartpage';
+import { CheckoutPage } from './pages/checkoutpage';
 
 test.describe('A. Navigation and Homepage', ()=>{
     test('TC-01: Home page loads successfully', async({page})=>{
@@ -141,7 +142,7 @@ test.describe('B. Product Catalog and Details',()=>{
 });
 
 let checkoutProduct =  {
-    name: 'Italian Dark Roast',
+    name: 'Jamaican Blue Mountain',
     price: '',
     orderID: '',
     email: ''
@@ -154,64 +155,72 @@ const invalidOrderTracking = {
 
 test.describe('C. Cart and Checkout', ()=>{
     test('TC-07: User can proceed to checkout from the cart', async({page})=>{
-        await page.goto('/');
-        await page.locator('nav').getByRole('link', {name: 'shop'}).click();
-        await expect(page).toHaveURL(/products/);
+        const homepage = new HomePage(page);
+        const productpage = new ProductPage(page);
+        const cartpage = new CartPage(page);
+        const checkoutpage = new CheckoutPage(page);
 
-        const LocatorProductBox = await page.locator('[data-test-id^="product-card-"]').filter({has:page.getByRole('heading', {name: checkoutProduct.name})});
-        checkoutProduct.price = await LocatorProductBox.locator('span').textContent() ?? '';
-        await LocatorProductBox.getByRole('button', {name: 'Add to Cart'}).click();
+        await homepage.gotoHomePage();
+        await productpage.goToProductPage();
+        await productpage.verifyOnProductPage();
 
-        await page.locator('[data-test-id="header-cart-button"]').click();
-        await expect(page).toHaveURL(/cart/);
-        const cartItem = page.locator('[data-test-id="cart-item"]').filter({has: page.getByRole('heading', {name: checkoutProduct.name})});
-        await expect(cartItem).toBeVisible();
-        expect(await cartItem.locator('.text-right>p').textContent()).toBe(checkoutProduct.price);
+        const addedProduct = await productpage.addToCart(checkoutProduct.name);
+        checkoutProduct.price = addedProduct.productPrice?? '';
+        console.log(checkoutProduct);
 
-        await page.getByRole('button', {name: 'proceed to checkout'}).click();
-        await expect(page).toHaveURL(/checkout/);
+        await cartpage.clickHeaderCartIconOnTheTop();
+        await cartpage.verifyOnCartPage();
+        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
+        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
+        await cartpage.clickProceedToCheckout();
+        await checkoutpage.verifyOnCheckoutPage();
     });
 
     test('TC-08: Checkout is blocked with missing required fields', async({page})=>{
-        await page.goto('/');
-        await page.locator('nav').getByRole('link', {name: 'shop'}).click();
-        await expect(page).toHaveURL(/products/);
+        const homepage = new HomePage(page);
+        const productpage = new ProductPage(page);
+        const cartpage = new CartPage(page);
+        const checkoutpage = new CheckoutPage(page);
 
-        const LocatorProductBox = await page.locator('[data-test-id^="product-card-"]').filter({has:page.getByRole('heading', {name: checkoutProduct.name})});
-        checkoutProduct.price = await LocatorProductBox.locator('span').textContent() ?? '';
-        await LocatorProductBox.getByRole('button', {name: 'Add to Cart'}).click();
+        await homepage.gotoHomePage();
+        await productpage.goToProductPage();
+        await productpage.verifyOnProductPage();
 
-        await page.locator('[data-test-id="header-cart-button"]').click();
-        await expect(page).toHaveURL(/cart/);
-        const cartItem = page.locator('[data-test-id="cart-item"]').filter({has: page.getByRole('heading', {name: checkoutProduct.name})});
-        await expect(cartItem).toBeVisible();
-        expect(await cartItem.locator('.text-right>p').textContent()).toBe(checkoutProduct.price);
+        const addedProduct = await productpage.addToCart(checkoutProduct.name);
+        checkoutProduct.price = addedProduct.productPrice??'';
+        await cartpage.clickHeaderCartIconOnTheTop();
+        await cartpage.verifyOnCartPage();
+        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
+        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
 
-        await page.getByRole('button', {name: 'proceed to checkout'}).click();
-        await expect(page).toHaveURL(/checkout/);
-
-        await page.getByRole('button', {name: 'Place Order'}).click();
-        await expect(page).toHaveURL(/checkout/);
-        await expect(await page.locator('form p').filter({hasText: 'is required'}).all()).toHaveLength(5);
+        await cartpage.clickProceedToCheckout();
+        await checkoutpage.verifyOnCheckoutPage();
+        await checkoutpage.clickPlaceOrder();
+        await cartpage.verifyMissingMandatoryFieldOnCheckoutForm();
     });
 
     test('TC-09: Checkout form accepts valid customer information', async({page})=>{
-        await page.goto('/');
-        await page.locator('nav').getByRole('link', {name: 'shop'}).click();
-        await expect(page).toHaveURL(/products/);
+        const homepage = new HomePage(page);
+        const productpage = new ProductPage(page);
+        const cartpage = new CartPage(page);
+        const checkoutpage = new CheckoutPage(page);
 
-        const LocatorProductBox = await page.locator('[data-test-id^="product-card-"]').filter({has:page.getByRole('heading', {name: checkoutProduct.name})});
-        checkoutProduct.price = await LocatorProductBox.locator('span').textContent() ?? '';
-        await LocatorProductBox.getByRole('button', {name: 'Add to Cart'}).click();
+        //navigate to /products
+        await homepage.gotoHomePage();
+        await productpage.goToProductPage();
+        await productpage.verifyOnProductPage();
 
-        await page.locator('[data-test-id="header-cart-button"]').click();
-        await expect(page).toHaveURL(/cart/);
-        const cartItem = page.locator('[data-test-id="cart-item"]').filter({has: page.getByRole('heading', {name: checkoutProduct.name})});
-        await expect(cartItem).toBeVisible();
-        expect(await cartItem.locator('.text-right>p').textContent()).toBe(checkoutProduct.price);
+        //Add to cart rely on specific product name.
+        const addedProduct = await productpage.addToCart(checkoutProduct.name);
+        checkoutProduct.price = addedProduct.productPrice??'';
+        await cartpage.clickHeaderCartIconOnTheTop();
+        await cartpage.verifyOnCartPage();
+        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
+        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
 
-        await page.getByRole('button', {name: 'proceed to checkout'}).click();
-        await expect(page).toHaveURL(/checkout/);
+        //Proceed to checkout
+        await cartpage.clickProceedToCheckout();
+        await checkoutpage.verifyOnCheckoutPage();
 
         //filling data in the form
         let fn = faker.person.firstName();
@@ -235,24 +244,13 @@ test.describe('C. Cart and Checkout', ()=>{
                 cardCVV: faker.finance.creditCardCVV()
             }
         };
-        await page.locator('[data-test-id="checkout-firstname-input"]').fill(checkoutForm.contact.firstName);
-        await page.locator('[data-test-id="checkout-lastname-input"]').fill(checkoutForm.contact.lastName);
-        await page.locator('[data-test-id="checkout-email-input"]').fill(checkoutForm.contact.email);
-        
-        await page.locator('[data-test-id="checkout-address-input"]').fill(checkoutForm.shipping.address);
-        await page.locator('[data-test-id="checkout-city-input"]').fill(checkoutForm.shipping.city);
-        await page.locator('[data-test-id="checkout-zipcode-input"]').fill(checkoutForm.shipping.zipCode);
-
-        await page.locator('[data-test-id="checkout-cardname-input"]').fill(checkoutForm.payment.nameOnCard);
-        await page.locator('[data-test-id="checkout-cardnumber-input"]').fill(checkoutForm.payment.cardNum);
-        await page.locator('[data-test-id="checkout-cardexpiry-input"]').fill(checkoutForm.payment.cardExpiry);
-        await page.locator('[data-test-id="checkout-cardcvc-input"]').fill(checkoutForm.payment.cardCVV);
-        await page.waitForTimeout(3000);
-        await page.getByRole('button', {name: 'place order'}).click();
-
-        await expect(page).toHaveURL(/order-confirmation/);
-        checkoutProduct.orderID = await page.locator('div').filter({hasText: 'Your Order ID is:'}).locator('p.tracking-wider').textContent()??'';
-        await expect(checkoutProduct.orderID?.length).toEqual(8);
+        const customerEmail = await checkoutpage.fillForm(checkoutForm);
+        checkoutProduct.email = customerEmail??'';
+        await checkoutpage.clickPlaceOrder();
+        const orderID = await checkoutpage.verifyOnOrderConfirmPage();
+        checkoutProduct.orderID = orderID;
+        console.log(checkoutProduct);
+        await page.pause();
     });
 });
 

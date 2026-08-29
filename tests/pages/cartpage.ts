@@ -10,6 +10,14 @@ export class CartPage{
         await this.page.locator('a[data-test-id="header-cart-button"]>button').click();
     }
 
+    async clickProceedToCheckout(){
+        await this.page.getByRole('button', {name: 'proceed to checkout'}).click();
+    }
+
+    async verifyMissingMandatoryFieldOnCheckoutForm(){
+        await expect(await this.page.locator('form p').filter({hasText: 'is required'}).all()).toHaveLength(5);
+    }
+
     async verifyOnCartPage(){
         await expect(this.page).toHaveURL(/cart/); 
     }
