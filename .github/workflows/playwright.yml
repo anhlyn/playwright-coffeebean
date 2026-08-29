@@ -20,11 +20,12 @@ jobs:
       run: |
         pwd
         npm run test:e2e
+        ls -la
     - name: Upload Playwright Report to github
       uses: actions/upload-artifact@v4
       with:
         name: e2e playwright-report
-        path: /playwright-report/
+        path: ./playwright-report/
 
   run-api-test:
     name: Run api testing
@@ -37,9 +38,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run api test
-        run: npm run test:api
+        run: |
+          pwd
+          npm run test:api
+          ls -la
       - name: Upload Playwright Report to github
         uses: actions/upload-artifact@v4
         with:
           name: api playwright-report
-          path: /playwright-report/
+          path: ./playwright-report/
