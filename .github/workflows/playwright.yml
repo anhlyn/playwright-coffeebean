@@ -37,7 +37,7 @@ jobs:
       - name: Run api test
         run: npm run test:api
       - name: Upload Playwright Report to github
-      uses: actions/upload-artifact@v4
-      with:
-        name: api playwright-report
-        path: ./playwright-report/
+        uses: actions/upload-artifact@v4
+        with:
+          name: api playwright-report
+          path: ./playwright-report/
