@@ -1,9 +1,20 @@
-import { type Page, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from '@playwright/test';
 
 export class HomePage{
-    page: Page;
+    readonly page: Page;
+    readonly navHome: Locator;
+    readonly navShop: Locator;
+    readonly navContact: Locator;
+    readonly btnViewAllProducts: Locator;
+    readonly headingFeaturedCoffees: Locator;
+
     constructor(p: Page){
         this.page = p;
+        this.navHome = this.page.locator('nav').getByRole('link', {name: 'Home'});
+        this.navShop = this.page.locator('nav').getByRole('link', {name: 'Shop'});
+        this.navContact = this.page.locator('nav>a[href="/contact"]');
+        this.btnViewAllProducts = this.page.locator('[data-test-id="home-view-all-products-button"]');
+        this.headingFeaturedCoffees = this.page.getByRole('heading', {name: 'Featured Coffees', exact: true});
     }
 
     async gotoHomePage(){
@@ -11,19 +22,19 @@ export class HomePage{
     }
 
     async clickNavHome(){
-        await this.page.locator('nav').getByRole('link', {name: 'Home'}).click();
+        await this.navHome.click();
     }
 
     async clickNavShop(){
-        await this.page.locator('nav').getByRole('link', {name: 'Shop'}).click();
+        await this.navShop.click();
     }
 
     async clickNavContact(){
-        await this.page.locator('nav>a[href="/contact"]').click();
+        await this.navContact.click();
     }
 
     async clickViewAllProducts(){
-        await this.page.locator('[data-test-id="home-view-all-products-button"]').click();
+        await this.btnViewAllProducts.click();
     }
 
     async verifyOnHomePage(){
@@ -34,15 +45,11 @@ export class HomePage{
         await expect(this.page).toHaveURL(/products/);
     }
 
-    async verifyOnContactPage(){
-        await expect(this.page.getByRole('heading', {name: 'Contact Us & Track Your Order'})).toBeVisible();
-    }
-
     async verifyFeaturesIsVisible(){
-        await expect(this.page.getByRole('heading', {name: 'Featured Coffees', exact: true})).toBeVisible();
+        await expect(this.headingFeaturedCoffees).toBeVisible();
     }
 
     async verifyBtnViewAllProductIsInvisible(){
-        await expect(this.page.locator('[data-test-id="home-view-all-products-button"]')).not.toBeVisible();
+        await expect(this.btnViewAllProducts).not.toBeVisible();
     }
 };

@@ -1,17 +1,22 @@
-import { type Page, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from '@playwright/test';
 
 export class CartPage{
-    page: Page;
+    readonly page: Page;
+    readonly btnCartOnHeader: Locator;
+    readonly btnProceedToCheckout: Locator;
+
     constructor(p: Page){
         this.page = p;
+        this.btnCartOnHeader = this.page.locator('a[data-test-id="header-cart-button"]>button');
+        this.btnProceedToCheckout = this.page.getByRole('button', {name: 'proceed to checkout'});
     }
 
     async clickHeaderCartIconOnTheTop(){
-        await this.page.locator('a[data-test-id="header-cart-button"]>button').click();
+        await this.btnCartOnHeader.click();
     }
 
     async clickProceedToCheckout(){
-        await this.page.getByRole('button', {name: 'proceed to checkout'}).click();
+        await this.btnProceedToCheckout.click();
     }
 
     async verifyMissingMandatoryFieldOnCheckoutForm(){

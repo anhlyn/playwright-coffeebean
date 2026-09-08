@@ -1,13 +1,18 @@
 import { type Page, type Locator, expect } from "@playwright/test";
 
 export class ProductPage{
-    page: Page;
+    readonly page: Page;
+    readonly navShop: Locator;
+    readonly firstProduct: Locator;
+
     constructor(p: Page){
         this.page = p;
+        this.navShop = this.page.locator('nav').getByRole('link', {name: 'Shop'});
+        this.firstProduct = this.page.locator('[data-test-id^="product-card-"]').first();
     }
 
     async goToProductPage(){
-        await this.page.locator('nav').getByRole('link', {name: 'Shop'}).click();
+        await this.navShop.click();
     }
 
     async verifyOnProductPage(){
@@ -34,11 +39,10 @@ export class ProductPage{
     }
 
     async getFirstProduct(){
-        const firstProduct = this.page.locator('[data-test-id^="product-card-"]').first();
-        const firstProductName = await firstProduct.getByRole('heading').textContent();
-        const firstProductPrice = await firstProduct.locator('span.text-2xl').textContent();
+        const firstProductName = await this.firstProduct.getByRole('heading').textContent();
+        const firstProductPrice = await this.firstProduct.locator('span.text-2xl').textContent();
         return {
-            locator: firstProduct,
+            locator: this.firstProduct,
             name: firstProductName,
             price: firstProductPrice
         };

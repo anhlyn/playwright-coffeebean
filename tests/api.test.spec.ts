@@ -1,6 +1,11 @@
 import { test, expect, request, devices } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 
+let dataTestTC05 = {
+    orderId:"2B42062A",
+    email:"test@abc.com"
+};
+
 test('TC-01: Products API returns 200 OK ', async({request})=>{
     const response = await request.get('/products');
     const responseJson = await response.json();
@@ -84,9 +89,37 @@ test('TC-04: Order creation API creates an order successfully', async({request})
 });
 
 test('TC-05: Order lookup API returns the correct order for valid input', async({request})=>{
+    //Pre-condition
+    const custEmail = faker.internet.email();
+    const orderPayload = {
+        "customerDetails": {
+            "firstName": faker.person.firstName(),
+            "lastName": faker.person.lastName(),
+            "email": custEmail,
+            "address": faker.location.streetAddress(),
+            "city": faker.location.city(),
+            "zipCode": faker.location.zipCode(),
+            "country": faker.location.country()
+        },
+        "items": [
+            {
+                "productId": "505",
+                "quantity": 1
+            },
+            {
+                "productId": "501",
+                "quantity": 1
+            }
+        ]
+    };
+        const responseDataTest = await request.post('/orders', {
+        data: JSON.stringify(orderPayload)
+    });
+    const responseJsonDataTest = await responseDataTest.json();
+    
     const bodyPayload = { 
-        orderId:"2B42062A",
-        email:"test@abc.com"
+        orderId: responseJsonDataTest.data.orderId,
+        email:custEmail
     };
 
     const response = await request.post('/orders/lookup', 
@@ -95,6 +128,7 @@ test('TC-05: Order lookup API returns the correct order for valid input', async(
         }
     );
     const responseJson = await response.json();
+    console.log(response.url());
     await expect(response.status()).toBe(200);
     await expect(response.ok()).toBeTruthy();
     await expect(responseJson.success).toBeTruthy();

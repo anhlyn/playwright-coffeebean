@@ -19,6 +19,7 @@ test.describe('A. Navigation and Homepage', ()=>{
 
     test('TC-02: Main navigation links work correctly', async({page})=>{
         const homepage = new HomePage(page);
+        const contactpage = new ContactPage(page);
         await test.step('Step: Go to homepage', async()=>{
             await homepage.gotoHomePage();
         });
@@ -35,7 +36,7 @@ test.describe('A. Navigation and Homepage', ()=>{
 
         await test.step('Step: Verify clicking contact link', async()=>{
             await homepage.clickNavContact();
-            await homepage.verifyOnContactPage();
+            await contactpage.verifyOnContactPage();
         });
     });
 });
@@ -251,7 +252,6 @@ test.describe('C. Cart and Checkout', ()=>{
         const orderID = await checkoutpage.verifyOnOrderConfirmPage();
         checkoutProduct.orderID = orderID;
         console.log(checkoutProduct);
-        await page.pause();
     });
 });
 
