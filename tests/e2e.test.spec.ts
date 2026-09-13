@@ -1,14 +1,9 @@
-import {test, expect} from '@playwright/test';
+import {expect} from '@playwright/test';
+import {test} from './fixtures/customFixture';
 import { faker } from '@faker-js/faker';
-import { HomePage } from './pages/homepage';
-import { ProductPage } from './pages/productpage';
-import { CartPage } from './pages/cartpage';
-import { CheckoutPage } from './pages/checkoutpage';
-import { ContactPage } from './pages/contact';
 
 test.describe('A. Navigation and Homepage', ()=>{
-    test('TC-01: Home page loads successfully', async({page})=>{
-        const homepage = new HomePage(page);
+    test('TC-01: Home page loads successfully', async({homepage})=>{
         await test.step('Go to homepage', async()=>{
             await homepage.gotoHomePage();
         });
@@ -17,9 +12,7 @@ test.describe('A. Navigation and Homepage', ()=>{
         });
     });
 
-    test('TC-02: Main navigation links work correctly', async({page})=>{
-        const homepage = new HomePage(page);
-        const contactpage = new ContactPage(page);
+    test('TC-02: Main navigation links work correctly', async({homepage, contactpage})=>{
         await test.step('Step: Go to homepage', async()=>{
             await homepage.gotoHomePage();
         });
@@ -42,8 +35,7 @@ test.describe('A. Navigation and Homepage', ()=>{
 });
 
 test.describe('B. Product Catalog and Details',()=>{
-    test('TC-03: Featured products are displayed on the homepage.', async({page})=>{
-        const homepage = new HomePage(page);
+    test('TC-03: Featured products are displayed on the homepage.', async({homepage})=>{
         await test.step('Step1: go to homepage', async()=>{
             await homepage.gotoHomePage();
             await homepage.verifyOnHomePage();
@@ -57,9 +49,7 @@ test.describe('B. Product Catalog and Details',()=>{
         });
     });
 
-    test('TC-04: User can open a product detail page', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
+    test('TC-04: User can open a product detail page', async({homepage, productpage})=>{
         await test.step('Step1: Navigate to /products', async()=>{
             await homepage.gotoHomePage();
             await productpage.goToProductPage();
@@ -76,11 +66,7 @@ test.describe('B. Product Catalog and Details',()=>{
         });
     });
 
-    test('TC-05: User can add a product to the cart', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
-
+    test('TC-05: User can add a product to the cart', async({homepage, productpage, cartpage})=>{
         await test.step('Step: Go to /products', async()=>{
             await homepage.gotoHomePage();
             await productpage.goToProductPage();
@@ -99,7 +85,7 @@ test.describe('B. Product Catalog and Details',()=>{
         });
     });
 
-    test('TC-06: Cart page displays selected items (more than 1 product) correctly', async({page})=>{
+    test('TC-06: Cart page displays selected items (more than 1 product) correctly', async({homepage, productpage, cartpage})=>{
         let products = [
             {
                 name: 'Colombian Supreme',
@@ -111,9 +97,6 @@ test.describe('B. Product Catalog and Details',()=>{
             }
         ];
 
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
         await test.step('Step1: go to /products', async()=>{
             await homepage.gotoHomePage();
             await productpage.goToProductPage();
@@ -138,8 +121,6 @@ test.describe('B. Product Catalog and Details',()=>{
                 await cartpage.verifyProductPriceIsInCart(product.price);
             }
         });
-
-        await page.pause();
     });
 });
 
@@ -156,12 +137,7 @@ const invalidOrderTracking = {
 };
 
 test.describe('C. Cart and Checkout', ()=>{
-    test('TC-07: User can proceed to checkout from the cart', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
-        const checkoutpage = new CheckoutPage(page);
-
+    test('TC-07: User can proceed to checkout from the cart', async({homepage, productpage, cartpage, checkoutpage})=>{
         await homepage.gotoHomePage();
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
@@ -178,12 +154,7 @@ test.describe('C. Cart and Checkout', ()=>{
         await checkoutpage.verifyOnCheckoutPage();
     });
 
-    test('TC-08: Checkout is blocked with missing required fields', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
-        const checkoutpage = new CheckoutPage(page);
-
+    test('TC-08: Checkout is blocked with missing required fields', async({homepage, productpage, cartpage, checkoutpage})=>{
         await homepage.gotoHomePage();
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
@@ -201,12 +172,7 @@ test.describe('C. Cart and Checkout', ()=>{
         await cartpage.verifyMissingMandatoryFieldOnCheckoutForm();
     });
 
-    test('TC-09: Checkout form accepts valid customer information', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
-        const checkoutpage = new CheckoutPage(page);
-
+    test('TC-09: Checkout form accepts valid customer information', async({homepage, productpage, cartpage, checkoutpage})=>{
         //navigate to /products
         await homepage.gotoHomePage();
         await productpage.goToProductPage();
@@ -256,12 +222,7 @@ test.describe('C. Cart and Checkout', ()=>{
 });
 
 test.describe('D. Order Tracking and Contact', ()=>{
-    test('TC-10: Order tracking works with a valid Order ID', async({page})=>{
-        const homepage = new HomePage(page);
-        const productpage = new ProductPage(page);
-        const cartpage = new CartPage(page);
-        const checkoutpage = new CheckoutPage(page);
-        const contactpage = new ContactPage(page);
+    test('TC-10: Order tracking works with a valid Order ID', async({homepage, productpage, cartpage, checkoutpage, contactpage})=>{
         //PRE-CONDITION: make 1 order
         await homepage.gotoHomePage();
         await productpage.goToProductPage();
@@ -313,22 +274,15 @@ test.describe('D. Order Tracking and Contact', ()=>{
         await contactpage.verifyOrderTracking();
     });
 
-    test('TC-11: Order tracking shows error message when Order ID and Email are left blank', async({page})=>{
-        const homepage = new HomePage(page);
-        const contactpage = new ContactPage(page);
-
+    test('TC-11: Order tracking shows error message when Order ID and Email are left blank', async({homepage, contactpage})=>{
         await homepage.gotoHomePage();
         await contactpage.goToContactPage();
-
         //Leave order id, email blank and click button Track Order
         await contactpage.clickTrackOrder();
         await contactpage.verifyOrderTrackingIfMissingRequiredFields();
     });
 
-    test('TC-12: Order tracking shows error message when fill invalid order tracking', async({page})=>{
-        const homepage = new HomePage(page);
-        const contactpage = new ContactPage(page);
-
+    test('TC-12: Order tracking shows error message when fill invalid order tracking', async({homepage, contactpage})=>{
         await homepage.gotoHomePage();
         await contactpage.goToContactPage();
 
