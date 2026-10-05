@@ -61,8 +61,8 @@ test.describe('B. Product Catalog and Details',()=>{
             await productpage.clickViewDetail(firstProduct.locator);
         });
         await test.step('Step3: Verify test result', async()=>{
-            await productpage.verifyProductDetailsHeading(firstProduct.name??'');
-            await productpage.verifyPrice(firstProduct.price??'');
+            await productpage.verifyProductDetailsHeading(firstProduct.name?? '');
+            await productpage.verifyPrice(firstProduct.price?? '');
         });
     });
 
@@ -106,7 +106,7 @@ test.describe('B. Product Catalog and Details',()=>{
         await test.step('Step2: Add selected products to the cart', async()=>{
             for(let product of products){
                 const tempProd = await productpage.addToCart(product.name);
-                product.price = tempProd.productPrice??'';
+                product.price = tempProd.productPrice?? '';
             } 
         });
 
@@ -124,12 +124,7 @@ test.describe('B. Product Catalog and Details',()=>{
     });
 });
 
-let checkoutProduct =  {
-    name: 'Jamaican Blue Mountain',
-    price: '',
-    orderID: '',
-    email: ''
-};
+const PRODUCT_NAME = 'Jamaican Blue Mountain';
 
 const invalidOrderTracking = {
     orderID: '0860F080F',
@@ -142,14 +137,13 @@ test.describe('C. Cart and Checkout', ()=>{
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
 
-        const addedProduct = await productpage.addToCart(checkoutProduct.name);
-        checkoutProduct.price = addedProduct.productPrice?? '';
-        console.log(checkoutProduct);
+        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
+        const price = addedProduct.productPrice?? '';
 
         await cartpage.clickHeaderCartIconOnTheTop();
         await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
-        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
+        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
+        await cartpage.verifyProductPriceIsInCart(price);
         await cartpage.clickProceedToCheckout();
         await checkoutpage.verifyOnCheckoutPage();
     });
@@ -159,12 +153,12 @@ test.describe('C. Cart and Checkout', ()=>{
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
 
-        const addedProduct = await productpage.addToCart(checkoutProduct.name);
-        checkoutProduct.price = addedProduct.productPrice??'';
+        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
+        const price = addedProduct.productPrice?? '';
         await cartpage.clickHeaderCartIconOnTheTop();
         await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
-        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
+        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
+        await cartpage.verifyProductPriceIsInCart(price);
 
         await cartpage.clickProceedToCheckout();
         await checkoutpage.verifyOnCheckoutPage();
@@ -179,12 +173,12 @@ test.describe('C. Cart and Checkout', ()=>{
         await productpage.verifyOnProductPage();
 
         //Add to cart rely on specific product name.
-        const addedProduct = await productpage.addToCart(checkoutProduct.name);
-        checkoutProduct.price = addedProduct.productPrice??'';
+        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
+        const price = addedProduct.productPrice?? '';
         await cartpage.clickHeaderCartIconOnTheTop();
         await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
-        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
+        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
+        await cartpage.verifyProductPriceIsInCart(price);
 
         //Proceed to checkout
         await cartpage.clickProceedToCheckout();
@@ -212,12 +206,9 @@ test.describe('C. Cart and Checkout', ()=>{
                 cardCVV: faker.finance.creditCardCVV()
             }
         };
-        const customerEmail = await checkoutpage.fillForm(checkoutForm);
-        checkoutProduct.email = customerEmail??'';
+        await checkoutpage.fillForm(checkoutForm);
         await checkoutpage.clickPlaceOrder();
-        const orderID = await checkoutpage.verifyOnOrderConfirmPage();
-        checkoutProduct.orderID = orderID;
-        console.log(checkoutProduct);
+        await checkoutpage.verifyOnOrderConfirmPage();
     });
 });
 
@@ -228,12 +219,12 @@ test.describe('D. Order Tracking and Contact', ()=>{
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
 
-        const addedProduct = await productpage.addToCart(checkoutProduct.name);
-        checkoutProduct.price = (await addedProduct).productPrice??'';
+        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
+        const price = addedProduct.productPrice?? '';
         await cartpage.clickHeaderCartIconOnTheTop();
         await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(checkoutProduct.name);
-        await cartpage.verifyProductPriceIsInCart(checkoutProduct.price);
+        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
+        await cartpage.verifyProductPriceIsInCart(price);
         await cartpage.clickProceedToCheckout();
         await checkoutpage.verifyOnCheckoutPage();
 
@@ -263,13 +254,11 @@ test.describe('D. Order Tracking and Contact', ()=>{
         await checkoutpage.fillForm(checkoutForm);
         await checkoutpage.clickPlaceOrder();
         const orderID = await checkoutpage.verifyOnOrderConfirmPage();
-        checkoutProduct.orderID = orderID;
-        checkoutProduct.email = checkoutForm.contact.email;
 
         //TEST STEPS: TRACK ORDER ID AND EMAIL
         await contactpage.goToContactPage();
-        await contactpage.fillOrderID(checkoutProduct.orderID);
-        await contactpage.fillEmail(checkoutProduct.email);
+        await contactpage.fillOrderID(orderID);
+        await contactpage.fillEmail(checkoutForm.contact.email);
         await contactpage.clickTrackOrder();
         await contactpage.verifyOrderTracking();
     });
