@@ -71,6 +71,7 @@ test('TC-04: Order creation API creates an order successfully', async({request})
                                 }
                             ]
                         };
+
     const response = await request.post('/orders', {
         data: JSON.stringify(orderPayload)
     });
@@ -147,7 +148,7 @@ test('TC-06: Order lookup API returns a not-found response for an invalid order 
     const responseJson = await response.json();
     await expect(response.status()).toBe(404);
     await expect(responseJson.success).toBeFalsy();
-    await expect(responseJson.data.message).toContain("not found for this email");
+    await expect(responseJson.data.message).toContain("No orders found");
 });
 
 test('TC-07: Product detail API returns a not-found response for an invalid product ID', async({request})=>{
