@@ -5,7 +5,9 @@ import { ProductPage } from '../pages/productpage';
 import { CartPage } from '../pages/cartpage';
 import { CheckoutPage } from '../pages/checkoutpage';
 
-export const test = BaseTest.extend<{homepage: HomePage, contactpage: ContactPage, productpage: ProductPage, cartpage: CartPage, checkoutpage: CheckoutPage}>({
+export const PRODUCT_NAME = 'Jamaican Blue Mountain';
+
+export const test = BaseTest.extend<{homepage: HomePage, contactpage: ContactPage, productpage: ProductPage, cartpage: CartPage, checkoutpage: CheckoutPage, checkoutReady: {name: string, price: string}}>({
     homepage: async({page}, use)=>{
         await use(new HomePage(page));
     },
@@ -20,5 +22,16 @@ export const test = BaseTest.extend<{homepage: HomePage, contactpage: ContactPag
     },
     checkoutpage: async({page}, use)=>{
         await use(new CheckoutPage(page));
+    },
+    checkoutReady: async({homepage, productpage, cartpage, checkoutpage}, use)=>{
+        await homepage.gotoHomePage();
+        await productpage.goToProductPage();
+
+        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
+        const price = addedProduct.productPrice?? '';
+        await cartpage.clickHeaderCartIconOnTheTop();
+        await cartpage.clickProceedToCheckout();
+        await checkoutpage.verifyOnCheckoutPage();
+        await use({name: PRODUCT_NAME, price});
     }
 });

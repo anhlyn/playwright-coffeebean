@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test';
-import {test} from './fixtures/customFixture';
+import {test, PRODUCT_NAME} from './fixtures/customFixture';
 import { faker } from '@faker-js/faker';
 
 test.describe('A. Navigation and Homepage', ()=>{
@@ -124,15 +124,8 @@ test.describe('B. Product Catalog and Details',()=>{
     });
 });
 
-const PRODUCT_NAME = 'Jamaican Blue Mountain';
-
-const invalidOrderTracking = {
-    orderID: '0860F080F',
-    email: 'Adah_Hartmann95@gmail.com'
-};
-
 test.describe('C. Cart and Checkout', ()=>{
-    test('TC-07: User can proceed to checkout from the cart', async({homepage, productpage, cartpage, checkoutpage})=>{
+    test('TC-07: User can proceed to checkout from the cart', async({homepage, productpage, cartpage, checkoutpage, checkoutReady})=>{
         await homepage.gotoHomePage();
         await productpage.goToProductPage();
         await productpage.verifyOnProductPage();
@@ -148,41 +141,13 @@ test.describe('C. Cart and Checkout', ()=>{
         await checkoutpage.verifyOnCheckoutPage();
     });
 
-    test('TC-08: Checkout is blocked with missing required fields', async({homepage, productpage, cartpage, checkoutpage})=>{
-        await homepage.gotoHomePage();
-        await productpage.goToProductPage();
-        await productpage.verifyOnProductPage();
-
-        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
-        const price = addedProduct.productPrice?? '';
-        await cartpage.clickHeaderCartIconOnTheTop();
-        await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
-        await cartpage.verifyProductPriceIsInCart(price);
-
-        await cartpage.clickProceedToCheckout();
-        await checkoutpage.verifyOnCheckoutPage();
+    test('TC-08: Checkout is blocked with missing required fields', async({checkoutpage, cartpage, checkoutReady})=>{
         await checkoutpage.clickPlaceOrder();
         await cartpage.verifyMissingMandatoryFieldOnCheckoutForm();
     });
 
-    test('TC-09: Checkout form accepts valid customer information', async({homepage, productpage, cartpage, checkoutpage})=>{
-        //navigate to /products
-        await homepage.gotoHomePage();
-        await productpage.goToProductPage();
-        await productpage.verifyOnProductPage();
-
-        //Add to cart rely on specific product name.
-        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
-        const price = addedProduct.productPrice?? '';
-        await cartpage.clickHeaderCartIconOnTheTop();
-        await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
-        await cartpage.verifyProductPriceIsInCart(price);
-
-        //Proceed to checkout
-        await cartpage.clickProceedToCheckout();
-        await checkoutpage.verifyOnCheckoutPage();
+    test('TC-09: Checkout form accepts valid customer information', async({checkoutpage, checkoutReady})=>{
+        await checkoutpage.verifyOrderSummary(checkoutReady.name, checkoutReady.price);
 
         //filling data in the form
         let fn = faker.person.firstName();
@@ -213,20 +178,7 @@ test.describe('C. Cart and Checkout', ()=>{
 });
 
 test.describe('D. Order Tracking and Contact', ()=>{
-    test('TC-10: Order tracking works with a valid Order ID', async({homepage, productpage, cartpage, checkoutpage, contactpage})=>{
-        //PRE-CONDITION: make 1 order
-        await homepage.gotoHomePage();
-        await productpage.goToProductPage();
-        await productpage.verifyOnProductPage();
-
-        const addedProduct = await productpage.addToCart(PRODUCT_NAME);
-        const price = addedProduct.productPrice?? '';
-        await cartpage.clickHeaderCartIconOnTheTop();
-        await cartpage.verifyOnCartPage();
-        await cartpage.verifyProductNameIsInCart(PRODUCT_NAME);
-        await cartpage.verifyProductPriceIsInCart(price);
-        await cartpage.clickProceedToCheckout();
-        await checkoutpage.verifyOnCheckoutPage();
+    test('TC-10: Order tracking works with a valid Order ID', async({checkoutReady, checkoutpage, contactpage})=>{
 
         //filling data in the form
         let fn = faker.person.firstName();
@@ -272,6 +224,10 @@ test.describe('D. Order Tracking and Contact', ()=>{
     });
 
     test('TC-12: Order tracking shows error message when fill invalid order tracking', async({homepage, contactpage})=>{
+        const invalidOrderTracking = {
+            orderID: '0860F080F',
+            email: 'invalid.user@example.com'
+        };
         await homepage.gotoHomePage();
         await contactpage.goToContactPage();
 

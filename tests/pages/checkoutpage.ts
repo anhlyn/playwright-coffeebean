@@ -53,6 +53,12 @@ export class CheckoutPage{
         await expect(this.page).toHaveURL(/checkout/);
     }
 
+    async verifyOrderSummary(productName: string, price: string){
+        const locOrderSummary = this.page.locator('div[data-test-id="order-summary"]');
+        await expect(locOrderSummary).toContainText(productName);
+        await expect(locOrderSummary).toContainText(price);
+    }
+
     async verifyOnOrderConfirmPage(){
         await expect(this.page).toHaveURL(/order-confirmation/);
         const orderID = await this.page.locator('div').filter({hasText: 'Your Order ID is:'}).locator('p.tracking-wider').textContent()??'';
